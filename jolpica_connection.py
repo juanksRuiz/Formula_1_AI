@@ -84,10 +84,33 @@ def get_round_results(season_data, round_id):
               ,'driver_id': driver_ids
               ,'code': driver_codes
               ,'fullname': drivers_fullname
-              ,'best_time_Q1_s': drivers_Q1
-              ,'best_time_Q2_s': drivers_Q2
-              ,'best_time_Q3_s': drivers_Q3
+              ,'best_time_Q1': drivers_Q1
+              ,'best_time_Q2': drivers_Q2
+              ,'best_time_Q3': drivers_Q3
               }
     return pd.DataFrame(result)
 
 
+# ----------------------------------------------------------------------------
+# Ahora queremos preprocesar cada tabla de cada ronda  y crear las columnas
+# de mejora de Q1 a Q3
+def preprocess_round_data(round_df):
+    # Paso 1: transformar las columnas de tiempos Qualis a time_delta
+    round_df['best_time_Q1'] = pd.to_timedelta('00:' + \
+                                               round_df['best_time_Q1'])
+    round_df['best_time_Q2'] = pd.to_timedelta('00:' + \
+                                               round_df['best_time_Q2'])
+    round_df['best_time_Q3'] = pd.to_timedelta('00:' + \
+                                               round_df['best_time_Q3'])
+    
+    # Paso 2: calcular diferencia entre Qualis
+    round_df['time_diff_Q1_Q2_s'] = (round_df['best_time_Q2'] - \
+                                           round_df['best_time_Q1']).dt.\
+                                    total_seconds()
+                                    
+    round_df['time_diff_Q2_Q3_s'] = (round_df['best_time_Q3'] - \
+                                           round_df['best_time_Q2']).dt.\
+                                    total_seconds()
+                                    
+    round_df['time_diff_Q1_Q3_s'] = round_df['time_diff_Q1_Q2_s'] + \
+                                    round_df['time_diff_Q2_Q3_s']
