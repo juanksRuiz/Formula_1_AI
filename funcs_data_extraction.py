@@ -3,7 +3,7 @@ import pandas as pd
 
 def get_season_qualifying_results(season):
     """
-    Obtiene los datos de todos los eventos de una temporada de la Formula 1
+    Obtiene  los datos de todos los eventos de una temporada de la Formula 1
     
     ARGS:
         season (int): anio de la temporada de la cual se descaargan los datos
