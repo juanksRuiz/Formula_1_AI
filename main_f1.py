@@ -1,5 +1,6 @@
 # Module imports
 from jolpica_connection import *
+import numpy as np
 import pandas as pd
 
 # La  idea de este archivo es probar el flujo de las funciones creadas
@@ -24,7 +25,6 @@ if prediction_round > round_wdw:
         round_df = get_round_results(season_data, i)
         if i == prediction_round-round_wdw:
             all_qualis_df = round_df
-            break # Prueba para los datos de la primera ronda
         else:
             all_qualis_df = pd.concat([all_qualis_df, round_df], axis=0)
     print('Data from all rounds concatenated!')

@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import numpy as np
 
 def get_season_qualifying_results(season):
     """
@@ -126,7 +127,7 @@ def convert_time_to_timedelta(time_str):
     # Se ignora en caso de que el campo venga vacio o con None por
     # no haber clasificado
     if pd.isna(time_str) or time_str.strip() == '':
-        return time_str
+        return np.nan
         # return pd.Timedelta(0)
     else:
         parts = time_str.split(':')
@@ -135,6 +136,15 @@ def convert_time_to_timedelta(time_str):
         
         return pd.Timedelta(minutes=minutes, seconds=seconds)
 
+# ----------------------------------------------------------------------------
+# Utility method for lammbda  function
+def compute_time_diffs(row):
+        q1_value = row['best_time_Q1'] if pd.notna(row['best_time_Q1']) and \
+                        not isinstance(row['best_time_Q1'], str) else np.nan
+        q2_value = row['best_time_Q2'] if pd.notna(row['best_time_Q2']) and \
+                        not isinstance(row['best_time_Q2'], str) else np.nan
+                        
+        return q2_value  - q1_value 
 # ----------------------------------------------------------------------------
 # Ahora queremos preprocesar cada tabla de cada ronda  y crear las columnas
 # de mejora de Q1 a Q3
@@ -157,7 +167,9 @@ def preprocess_round_data(round_df):
     df['best_time_Q3'] = df['best_time_Q3'].apply(convert_time_to_timedelta)
     
     # Paso 2: calcular diferencia entre Qualis
-    df['time_diff_Q1_Q2_s'] = (df['best_time_Q2'] - \
+    df['time_diff_Q1_Q2_s'] = df.apply(compute_time_diffs, axis=1).dt.\
+                                            total_seconds()
+    '''df['time_diff_Q1_Q2_s'] = (df['best_time_Q2'] - \
                                            df['best_time_Q1']).dt.\
                                     total_seconds()
                                     
@@ -166,6 +178,6 @@ def preprocess_round_data(round_df):
                                     total_seconds()
                                     
     df['time_diff_Q1_Q3_s'] = df['time_diff_Q1_Q2_s'] + \
-                                    df['time_diff_Q2_Q3_s']
+                                    df['time_diff_Q2_Q3_s']'''
                                     
     return df
