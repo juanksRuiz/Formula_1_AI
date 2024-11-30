@@ -2,6 +2,15 @@ import requests
 import pandas as pd
 
 def get_season_qualifying_results(season):
+    """
+    Obtiene los datos de todos los eventos de una temporada de la Formula 1
+    
+    ARGS:
+        season (int): anio de la temporada de la cual se descaargan los datos
+        
+    RETURNS:
+        lista con datos como diccionarios de cada ronda
+    """
     qualifying_results = []
     round_number = 1
 
@@ -30,6 +39,17 @@ def get_season_qualifying_results(season):
 # ----------------------------------------------------------------------------
 # Funcion para ordenar los datos de una ronda en una tabla
 def get_round_results(season_data, round_id):
+    """
+    Obtiene los resultados de una ronda con los datos de una temporada
+    especifica
+    ARGS:
+        season_data (X): datos de una temporada
+        round_id (string): numero de la ronda de la temporada
+    
+    RETURNS:
+        Dataframe de pandas con los datos. Incluye el numero y codigo de cada
+        piloto, y los mejores tiempos en Q1, Q2 y Q3
+    """
     # Se toma el id de la ronda, el nombre de la carrera, la date, time
     # y los resultados en Q1, Q2, y Q3
     round_data = season_data[int(round_id)]
@@ -119,6 +139,17 @@ def convert_time_to_timedelta(time_str):
 # Ahora queremos preprocesar cada tabla de cada ronda  y crear las columnas
 # de mejora de Q1 a Q3
 def preprocess_round_data(round_df):
+    """
+    Calcula la mejora en segundos de Q1 a Q2, Q2 a Q3 y Q1 a Q3 como nuevas
+    columnas de un dataset inicial
+    
+    ARGS:
+        round_df (pandas.DataFrame): dataframe con datos crudos de una ronda de
+            una temporada
+    
+    RETURNS:
+        Un dataframe con las columnas de mejora de tiempos de Q1 a Q3
+    """
     # Paso 1: transformar las columnas de tiempos Qualis a time_delta
     df = round_df.copy()
     df['best_time_Q1'] = df['best_time_Q1'].apply(convert_time_to_timedelta)

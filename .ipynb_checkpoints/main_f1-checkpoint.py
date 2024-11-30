@@ -6,6 +6,7 @@ import pandas as pd
 # Para traer los datos de la API, preprocesarlos y tener una tabla final
 # consolidada con las distintas de funetes de datos
 
+# Cargue de librerias
 # PASO 1: definicion de parametros como la temporada y ronda de la cual
 # Se calculara los resultados con las 10 carreras anteriores.
 season_years = [2022, 2023]
