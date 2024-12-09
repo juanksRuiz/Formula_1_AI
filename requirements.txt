@@ -2,3 +2,8 @@ fastapi
 uvicorn
 requests
 spyder-kernels==2.2.0
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn

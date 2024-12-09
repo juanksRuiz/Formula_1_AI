@@ -2,15 +2,114 @@ import requests
 import pandas as pd
 import numpy as np
 
-def get_season_qualifying_results(season):
+
+
+def get_season_race_results(season):
     """
-    Obtiene  los datos de todos los eventos de una temporada de la Formula 1
+    Obtiene los datos de carreras de todos los eventos de una temporada de la Formula 1
     
     ARGS:
         season (int): anio de la temporada de la cual se descaargan los datos
         
     RETURNS:
-        lista con datos como diccionarios de cada ronda
+        lista con datos de carreras como diccionarios de cada ronda
+    """
+    races = []
+    offset = 0
+    limit = 30 # Numero de resultados por pagina
+
+    while True:
+        url = f"http://api.jolpi.ca/ergast/f1/{season}/results/?limit={limit}&offset={offset}"
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            new_races = data['MRData']['RaceTable']['Races']
+            if not new_races:
+                break
+            races.extend(new_races)
+            offset += limit
+        else:
+            print(f"Error: {response.status_code}")
+            break
+    # Por alguna razon se repiten las carreras, aqui se quitan duplicados        
+    final_race_idxs = [0]
+    
+    last_race_name = races[0]['raceName']
+    for i, race in enumerate(races):
+        # keep the index of the race if it is not selected
+        if race['raceName'] != last_race_name:
+            final_race_idxs.append(i)
+            last_race_name = race['raceName']
+    return [races[idx] for idx in final_race_idxs]
+# ----------------------------------------------------------------------------
+def get_round_race_results(season_data, round_id):
+    """
+    Obtiene los resultados de una carrera con los datos de una temporada
+    especifica
+    ARGS:
+        season_data (X): datos de una temporada
+        round_id (string): numero de la ronda de la temporada
+    
+    RETURNS:
+        Dataframe de pandas con los datos. Incluye el numero y codigo de cada
+        piloto, y los mejores tiempos en Q1, Q2 y Q3
+    """
+    if round_id <= 0:
+        print('ERROR: numero de ronda incorrecto')
+        return None
+        
+    
+    round_data = season_data[int(round_id)-1]
+    #round_num = round_data['round']
+    #race_name = round_data['raceName']
+    #race_date = round_data['date']
+    #race_time = round_data['time']
+    num_of_drivers = []
+    drivers_race_pos = []
+    driver_ids = []
+    driver_codes = []
+    drivers_fullname = []
+    # finished
+    finished_race_flags = []
+    duration_milis = []
+    fastest_lap_ranks = []
+    
+    for driver_results in round_data['Results']:
+        num_of_drivers.append(driver_results['number'])
+        drivers_race_pos.append(driver_results['position'])
+        driver_ids.append(driver_results['Driver']['driverId'])
+        driver_codes.append(driver_results['Driver']['code'])
+        drivers_fullname.append(driver_results['Driver']['givenName'] + \
+                                ' ' + driver_results['Driver']['familyName'])
+            
+        finished_race_flags.append(driver_results['status'])
+        #duration_milis.append(driver_results['Time']['millis'])
+        fastest_lap_ranks.append(driver_results['FastestLap']['rank'])
+        
+    
+    result = {'driver_number': num_of_drivers
+              ,'final_position': drivers_race_pos
+              ,'driver_id': driver_ids
+              ,'code': driver_codes
+              ,'fullname': drivers_fullname
+              ,'race_ending_status': finished_race_flags
+              ,'fastest_lap_rank': fastest_lap_ranks
+              }
+    
+    
+    return pd.DataFrame(result)
+# ----------------------------------------------------------------------------
+
+def get_season_qualifying_results(season):
+    """
+    # NOTA: SE HACE CON LA API ERGAST, CORREGIR PARA QUE SE HAGA CON JOLPICA
+    Obtiene  los datos de qualifyers de todos los eventos de una temporada de la Formula 1
+    
+    ARGS:
+        season (int): anio de la temporada de la cual se descaargan los datos
+        
+    RETURNS:
+        lista con datos de qualifiers como diccionarios de cada ronda
     """
     qualifying_results = []
     round_number = 1
@@ -39,7 +138,7 @@ def get_season_qualifying_results(season):
 #print(season_data)
 # ----------------------------------------------------------------------------
 # Funcion para ordenar los datos de una ronda en una tabla
-def get_round_results(season_data, round_id):
+def get_round_qualifyer_results(season_data, round_id):
     """
     Obtiene los resultados de una ronda con los datos de una temporada
     especifica
