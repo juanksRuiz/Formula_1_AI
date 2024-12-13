@@ -1,5 +1,9 @@
 from funcs_data_extraction import *
 
 
-race_results = get_season_race_results(2023)
-first_race_results_df = get_round_race_results(race_results, 1)
+# Ejemplo de uso
+resultados_qualifying_2023 = get_season_qualifying_results(2023)
+
+df_qualifying = get_round_qualifying_results(resultados_qualifying_2023, 1)
+df_qualifying_variables = calculate_qualifying_variables(df_qualifying)
+print(df_qualifying_variables)
