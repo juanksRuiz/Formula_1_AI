@@ -151,6 +151,12 @@ def get_round_qualifying_results(season_data, round_id):
     drivers_Q2 = []
     drivers_Q3 = []
     
+    
+    season_year = round_data['season']
+    race_name = round_data['raceName']
+    round_number = round_data['round']
+            
+    # Nombre de la carrera y numero de ronda en el for    
     for driver_results in round_data['QualifyingResults']:
         num_of_drivers.append(driver_results['number'])
         driver_ids.append(driver_results['Driver']['driverId'])
@@ -161,6 +167,7 @@ def get_round_qualifying_results(season_data, round_id):
         drivers_Q2.append(driver_results.get('Q2', None))
         drivers_Q3.append(driver_results.get('Q3', None))
     
+    
     result = {
         'driver_number': num_of_drivers,
         'driver_id': driver_ids,
@@ -168,10 +175,16 @@ def get_round_qualifying_results(season_data, round_id):
         'fullname': drivers_fullname,
         'best_time_Q1': drivers_Q1,
         'best_time_Q2': drivers_Q2,
-        'best_time_Q3': drivers_Q3
+        'best_time_Q3': drivers_Q3,
+        'race_name': race_name,
+        'round_number': round_number
     }
     
-    return pd.DataFrame(result)
+    df = pd.DataFrame(result)
+    df['season'] = season_year
+    df['race_name'] = race_name
+    df['round_number'] = round_number
+    return df
 
 # ----------------------------------------------------------------------------
 def calculate_qualifying_variables(df):
